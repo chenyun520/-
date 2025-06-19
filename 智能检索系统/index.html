@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上海工厂智能题库检索系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.0.2/tesseract.min.js"></script>
+</head>
+<body>
+    <!-- 密码验证界面 -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <i class="fas fa-shield-alt"></i>
+                <h1>系统验证</h1>
+                <p>请输入密码访问上海工厂智能题库检索系统</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="password-input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="passwordInput" placeholder="请输入密码" required>
+                    <button type="button" id="togglePassword" class="toggle-password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    登录系统
+                </button>
+                <div class="login-hint">
+                    <i class="fas fa-info-circle"></i>
+                    <span>初始密码：shgc123</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主系统界面 -->
+    <div id="mainSystem" class="main-system" style="display: none;">
+        <div class="container">
+            <!-- 头部 -->
+            <header class="header">
+                <div class="header-content">
+                    <h1 class="system-title">
+                        <span class="title-main">上海工厂</span>
+                        <span class="title-sub">智能题库检索系统</span>
+                    </h1>
+                    <div class="header-controls">
+                        <button id="logoutBtn" class="logout-btn" title="退出系统">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                        <button id="themeToggle" class="theme-toggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <div class="stats">
+                            <span id="totalQuestions">总题数: 0</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 搜索区域 -->
+            <section class="search-section">
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="输入关键词搜索题目或答案...">
+                        <button id="clearSearch" class="clear-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-category="all">
+                            <i class="fas fa-list"></i> 全部题目
+                        </button>
+                        <button class="filter-tab" data-category="班组长">
+                            <i class="fas fa-users"></i> 班组长赛道
+                        </button>
+                        <button class="filter-tab" data-category="精益经理">
+                            <i class="fas fa-chart-line"></i> 精益经理赛道
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 功能按钮区域 -->
+            <section class="action-section">
+                <div class="action-buttons">
+                    <button id="selfTestBtn" class="action-btn primary">
+                        <i class="fas fa-graduation-cap"></i> 自测功能
+                    </button>
+                    <button id="addQuestionBtn" class="action-btn secondary">
+                        <i class="fas fa-plus"></i> 添加题目
+                    </button>
+                    <button id="ocrBtn" class="action-btn secondary">
+                        <i class="fas fa-camera"></i> OCR识别
+                    </button>
+                    <button id="importBtn" class="action-btn secondary">
+                        <i class="fas fa-upload"></i> 批量导入
+                    </button>
+                </div>
+            </section>
+
+            <!-- 题目列表 -->
+            <section class="questions-section">
+                <div id="questionsContainer" class="questions-container">
+                    <div class="loading" id="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>加载中...</span>
+                    </div>
+                </div>
+                <div id="noResults" class="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h3>没有找到相关题目</h3>
+                    <p>请尝试其他关键词或调整筛选条件</p>
+                </div>
+            </section>
+
+            <!-- 分页 -->
+            <div class="pagination" id="pagination"></div>
+            
+            <!-- 底部署名 -->
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="company-signature">
+                        <div class="logo-container">
+                            <!-- 尝试多个可能的logo链接 -->
+                            <img src="https://www.juewei.cn/favicon.ico" alt="绝味食品" class="company-logo" 
+                                 onerror="this.src='https://www.juewei.cn/static/img/logo.png'; this.onerror=function(){this.style.display='none'; this.nextElementSibling.style.display='flex';};">
+                            <div class="text-logo" style="display: none;">
+                                <div class="logo-icon">绝</div>
+                                <div class="logo-brand">
+                                    <span class="logo-text">绝味食品</span>
+                                    <span class="logo-subtitle">JUEWEI</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="signature-text">
+                            <span class="company-name">绝味集团上海工厂精益部</span>
+                            <span class="system-info">智能题库检索系统 v1.0</span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 自测功能模态框 -->
+    <div id="selfTestModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-graduation-cap"></i> 自测功能</h2>
+                <button class="close-btn" id="closeSelfTestModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="test-mode-selection">
+                    <div class="test-mode">
+                        <div class="mode-card practice-mode">
+                            <i class="fas fa-dumbbell"></i>
+                            <h3>练习模式</h3>
+                            <p>随机出题，自由练习，不限时间</p>
+                            <button id="startPracticeBtn" class="btn primary">开始练习</button>
+                        </div>
+                        <div class="mode-card exam-mode">
+                            <i class="fas fa-clock"></i>
+                            <h3>考试模式</h3>
+                            <p>100道题，限时1小时，模拟考试</p>
+                            <button id="startExamBtn" class="btn danger">开始考试</button>
+                        </div>
+                    </div>
+                    <div class="test-settings">
+                        <div class="form-group">
+                            <label for="testCategory">选择赛道</label>
+                            <select id="testCategory">
+                                <option value="all">全部题目</option>
+                                <option value="班组长">班组长赛道</option>
+                                <option value="精益经理">精益经理赛道</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自测答题界面 -->
+    <div id="testInterface" class="test-interface" style="display: none;">
+        <div class="test-header">
+            <div class="test-info">
+                <h2 id="testModeTitle">练习模式</h2>
+                <div class="test-progress">
+                    <span id="currentQuestion">1</span> / <span id="totalTestQuestions">10</span>
+                </div>
+            </div>
+            <div class="test-controls">
+                <div id="timer" class="timer" style="display: none;">
+                    <i class="fas fa-clock"></i>
+                    <span id="timeRemaining">60:00</span>
+                </div>
+                <button id="exitTest" class="btn secondary">退出测试</button>
+            </div>
+        </div>
+        
+        <div class="test-content">
+            <div class="question-card">
+                <div class="question-text" id="testQuestionText">
+                    <!-- 题目内容 -->
+                </div>
+                <div class="options-container" id="testOptionsContainer">
+                    <!-- 选项内容 -->
+                </div>
+            </div>
+            
+            <div class="test-navigation">
+                <button id="prevQuestion" class="btn secondary" disabled>上一题</button>
+                <button id="showAnswer" class="btn info">查看答案</button>
+                <button id="nextQuestion" class="btn primary">下一题</button>
+                <button id="finishTest" class="btn success" style="display: none;">完成测试</button>
+            </div>
+        </div>
+        
+        <div id="answerDisplay" class="answer-display" style="display: none;">
+            <h4>参考答案：</h4>
+            <div id="answerContent"></div>
+        </div>
+    </div>
+
+    <!-- 测试结果模态框 -->
+    <div id="testResultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-trophy"></i> 测试结果</h2>
+                <button class="close-btn" id="closeResultModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="testResults" class="test-results">
+                    <!-- 测试结果内容 -->
+                </div>
+                <div class="result-actions">
+                    <button id="reviewTest" class="btn secondary">回顾错题</button>
+                    <button id="restartTest" class="btn primary">重新测试</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加题目模态框 - 优化版 -->
+    <div id="addQuestionModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> 添加新题目</h2>
+                <button class="close-btn" id="closeAddModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addQuestionForm" class="add-question-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="questionCategory">
+                                <i class="fas fa-tag"></i>
+                                赛道分类
+                            </label>
+                            <select id="questionCategory" required>
+                                <option value="">请选择赛道分类</option>
+                                <option value="班组长">班组长赛道</option>
+                                <option value="精益经理">精益经理赛道</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="questionText">
+                            <i class="fas fa-question-circle"></i>
+                            题目内容
+                        </label>
+                        <textarea id="questionText" placeholder="请输入完整的题目内容，包括问题描述和选项..." required rows="6"></textarea>
+                        <div class="input-tip">
+                            <i class="fas fa-lightbulb"></i>
+                            建议包含：题目描述、选项（如A、B、C、D）等完整信息
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="questionAnswer">
+                            <i class="fas fa-check-circle"></i>
+                            参考答案
+                        </label>
+                        <textarea id="questionAnswer" placeholder="请输入详细的参考答案和解析..." required rows="4"></textarea>
+                        <div class="input-tip">
+                            <i class="fas fa-lightbulb"></i>
+                            建议包含：正确答案、解题思路、相关知识点等
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary large" id="cancelAdd">
+                            <i class="fas fa-times"></i>
+                            取消
+                        </button>
+                        <button type="submit" class="btn primary large">
+                            <i class="fas fa-plus"></i>
+                            添加题目
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- OCR识别模态框 -->
+    <div id="ocrModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-camera"></i> OCR文字识别</h2>
+                <button class="close-btn" id="closeOcrModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>点击或拖拽图片到此处</p>
+                    <small>支持 JPG、PNG、GIF 格式</small>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                </div>
+                <div id="ocrPreview" class="ocr-preview" style="display: none;">
+                    <img id="previewImage" alt="预览图片">
+                </div>
+                <div id="ocrResult" class="ocr-result" style="display: none;">
+                    <h3>识别结果：</h3>
+                    <textarea id="ocrText" rows="8" placeholder="识别的文字将显示在这里..."></textarea>
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary" id="retryOcr">重新识别</button>
+                        <button type="button" class="btn primary" id="addFromOcr">添加为题目</button>
+                    </div>
+                </div>
+                <div id="ocrProgress" class="progress-container" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <p>正在识别中，请稍候...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量导入模态框 -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-upload"></i> 批量导入题目</h2>
+                <button class="close-btn" id="closeImportModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="import-options">
+                    <div class="import-option">
+                        <h3><i class="fas fa-file-word"></i> Word文档导入</h3>
+                        <p>支持 .docx 格式的Word文档</p>
+                        <input type="file" id="wordInput" accept=".docx" style="display: none;">
+                        <button class="btn secondary" onclick="document.getElementById('wordInput').click()">
+                            选择Word文件
+                        </button>
+                    </div>
+                    <div class="import-option">
+                        <h3><i class="fas fa-file-alt"></i> 文本文件导入</h3>
+                        <p>支持 .txt 格式的文本文件</p>
+                        <input type="file" id="txtInput" accept=".txt" style="display: none;">
+                        <button class="btn secondary" onclick="document.getElementById('txtInput').click()">
+                            选择文本文件
+                        </button>
+                    </div>
+                </div>
+                <div id="importPreview" class="import-preview" style="display: none;">
+                    <h3>导入预览：</h3>
+                    <div id="previewContent"></div>
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary" id="cancelImport">取消</button>
+                        <button type="button" class="btn primary" id="confirmImport">确认导入</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 题目详情模态框 -->
+    <div id="questionDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> 题目详情</h2>
+                <button class="close-btn" id="closeDetailModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="questionDetail"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="questionData.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 
