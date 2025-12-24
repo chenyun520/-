@@ -86,19 +86,28 @@ const Polaroid: React.FC<{
       </mesh>
 
       {/* Visuals */}
+      {/* String/Hook */}
+      {isFormed && !isZoomed && (
+        <mesh position={[0, 1.8, 0]}>
+          <cylinderGeometry args={[0.02, 0.02, 1, 8]} />
+          <meshStandardMaterial color="#ffd700" metalness={1} roughness={0.2} />
+        </mesh>
+      )}
+
       {/* White Border / Paper */}
       <mesh position={[0, 0, -0.01]}>
         <boxGeometry args={[2.2, 2.6, 0.05]} />
         <meshStandardMaterial 
-          color={isHovered ? "#ffdddd" : "#ffffff"} 
-          emissive={isHovered ? "#330000" : "#000000"}
-          roughness={0.4} 
+          color={isHovered ? "#fff9f0" : "#ffffff"} 
+          emissive={isHovered ? "#221100" : "#000000"}
+          roughness={0.3} 
+          metalness={0.1}
         />
       </mesh>
       
       {/* Photo Image */}
       <mesh position={[0, 0.2, 0.02]}>
-        <planeGeometry args={[1.8, 1.8]} />
+        <planeGeometry args={[1.9, 1.9]} />
         <meshBasicMaterial map={texture} />
       </mesh>
     </group>
